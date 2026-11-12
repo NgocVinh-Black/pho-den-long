@@ -1,0 +1,16 @@
+node_modules/
+dist/
+*.db
+*.db-journal
+.env
+_old/
+
+# === Claude Code Game Studios ===
+.claude/settings.local.json
+CLAUDE.local.md
+project.local.yaml
+production/session-logs/
+production/session-state/
+.scratch/
+.claude/agent-memory/
+.claude/worktrees/

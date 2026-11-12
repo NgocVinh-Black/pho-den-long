@@ -1,0 +1,172 @@
+// Cơ sở dữ liệu game Phố Đèn Lồng (SQLite khi phát triển; đổi provider sang postgresql khi deploy).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Tài khoản đăng nhập bằng Google
+model User {
+  id          String    @id @default(uuid())
+  googleSub   String    @unique
+  email       String
+  displayName String
+  picture     String?
+  createdAt   DateTime  @default(now())
+  lastLoginAt DateTime  @default(now())
+  players     Player[]
+  sessions    Session[]
+}
+
+/// Phiên đăng nhập (mã phiên nằm trong cookie đã ký)
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Player {
+  id        String  @id @default(uuid())
+  /// null = chơi khách (chưa gắn tài khoản)
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name      String
+  shopId    String
+  day       Int     @default(1)
+  money     Int
+  rep       Int     @default(0)
+  decor     Int     @default(0)
+  shopLevel Int     @default(1)
+  /// Gói máy bay quảng cáo đã thuê hôm nay ("nho" | "vua" | "lon"), xoá khi kết thúc ngày
+  adPlan    String?
+
+  // Ngoại hình nhân vật chủ quán
+  avatarSkin  String @default("#f1c27d")
+  avatarShirt String @default("#c0392b")
+  avatarHat   String @default("nonla")
+
+  // Thống kê của ngày đang chơi
+  todayServed  Int @default(0)
+  todayPerfect Int @default(0)
+  todayMissed  Int @default(0)
+  todayRevenue Int @default(0)
+  todaySpent   Int @default(0)
+
+  // Thống kê tích lũy
+  totalServed  Int @default(0)
+  totalRevenue Int @default(0)
+  totalPerfect Int @default(0)
+  bestDay      Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  learned   LearnedRecipe[]
+  pantry    PantryItem[]
+  sales     DishSale[]
+  shipments Shipment[]
+  furniture PlayerFurniture[]
+  notes     Note[]
+  staff     Staff[]
+
+  @@index([totalRevenue])
+  @@index([userId])
+}
+
+/// Đơn hàng mua ở chợ: tự gánh về (carry) hoặc xe giao tới (delivery)
+model Shipment {
+  id         String         @id @default(uuid())
+  playerId   String
+  mode       String // "carry" | "delivery"
+  status     String         @default("pending") // "pending" | "received"
+  fee        Int            @default(0)
+  createdAt  DateTime       @default(now())
+  receivedAt DateTime?
+  player     Player         @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  items      ShipmentItem[]
+
+  @@index([playerId, status])
+}
+
+model ShipmentItem {
+  shipmentId   String
+  ingredientId String
+  qty          Int
+  shipment     Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@id([shipmentId, ingredientId])
+}
+
+model LearnedRecipe {
+  playerId  String
+  recipeId  String
+  learnedAt DateTime @default(now())
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@id([playerId, recipeId])
+}
+
+model PantryItem {
+  playerId     String
+  ingredientId String
+  qty          Int
+  player       Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@id([playerId, ingredientId])
+}
+
+model DishSale {
+  playerId String
+  day      Int
+  recipeId String
+  count    Int
+  player   Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@id([playerId, day, recipeId])
+}
+
+/// Đồ nội thất trong quán (bàn ghế, quạt, cây cảnh…)
+model PlayerFurniture {
+  playerId String
+  itemId   String
+  qty      Int
+  player   Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@id([playerId, itemId])
+}
+
+/// Sổ ghi chú đi chợ
+model Note {
+  id        String   @id @default(uuid())
+  playerId  String
+  title     String
+  /// JSON: [{ text, ingredientId?, qty?, done }]
+  items     String   @default("[]")
+  pinned    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@index([playerId])
+}
+
+/// Nhân viên quán: phục vụ (waiter) hoặc phụ bếp (cook)
+model Staff {
+  id       String   @id @default(uuid())
+  playerId String
+  role     String
+  name     String
+  hiredDay Int
+  hiredAt  DateTime @default(now())
+  player   Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@index([playerId])
+}
