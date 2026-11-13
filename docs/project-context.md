@@ -1,6 +1,6 @@
 # Phố Đèn Lồng · Tổng hợp context dự án
 
-> Cập nhật 2026-11-13. Đây là bản tóm tắt để người (hoặc agent) mới vào nắm nhanh dự án đang ở đâu.
+> Cập nhật 2026-11-13 (thêm bản Godot góc nhìn thứ ba). Đây là bản tóm tắt để người (hoặc agent) mới vào nắm nhanh dự án đang ở đâu.
 > Nguồn sự thật vẫn là code và các tài liệu trong `design/`.
 
 ## Game là gì
@@ -15,8 +15,49 @@ Game kinh doanh nhẹ nhàng trên trình duyệt. Người chơi làm chủ 1 t
 | `apps/api` | Node.js, Fastify 5, Prisma 6 (SQLite khi dev), Zod, đăng nhập Google |
 | `packages/shared` | Kiểu dữ liệu, dữ liệu 20 quán / 60 món / 80 nguyên liệu, luật chơi |
 | Kiểm tra | Vitest (API), ESLint, Prettier, `npm run typecheck` |
+| `godot/` | **Bản thử 3D góc nhìn thứ ba**: Godot 4.7.2 (Forward+), GDScript; mô hình và cảnh dựng bằng Blender 5.2 |
+| `tools/blender/` | Script Blender chạy không giao diện: dựng mô hình, góc phố, render sprite, ảnh chân dung |
 
-Chạy: `npm run setup`, `cp apps/api/.env.example apps/api/.env`, `npm run dev` → http://localhost:5173.
+Chạy bản web: `npm run setup`, `cp apps/api/.env.example apps/api/.env`, `npm run dev` → http://localhost:5173.
+Chạy bản Godot: `godot --path godot` (chi tiết trong `godot/README.md`).
+
+## Bản Godot góc nhìn thứ ba (nhánh `art/concept-goc-nhin-3-4`)
+
+Chủ dự án muốn chuyển đồ hoạ sang **3D góc nhìn thứ ba, phong cách chibi hoạt hình phố Việt** (sáng, nét viền).
+Hướng đã thử theo thứ tự: chibi nhìn từ trên → isometric → 2.5D kiểu Nobody → tranh nền vẽ sẵn (`corner`) →
+**cảnh 3D đầy đủ góc nhìn thứ ba (`street3p`, hiện là cảnh chính)**. Các cảnh cũ (`main`, `town`, `corner`) còn giữ để tham khảo.
+
+| Phần | Nơi |
+|---|---|
+| Cảnh chính | `godot/scenes/street3p.tscn` + `scripts/street3p.gd` (camera, va chạm trượt, tương tác E, khách, chợ, việc vặt) |
+| Nội thất 18 quán | `scripts/interior.gd` (phòng 14×10 m, lối giữa 3 m, theo nghề) |
+| Giao diện | `scripts/hud_game.gd` (thẻ nhân vật, 5 nút có bảng, hộp thoại, bản đồ, "Việc cần làm") |
+| Logic tiền / nấu / đồng hồ | `scripts/game_state.gd` (không chạm cảnh, có test) |
+| Nhân vật | `scripts/chibi.gd` (đi, ngồi, bưng, **ăn bằng đũa**, **nhảy**) |
+| Số liệu chơi | `godot/data/gameplay.json` (giá + công thức phở lấy từ `packages/shared`) |
+| Cảnh 3D | `tools/blender/build_corner.py --export3d` → `godot/assets/scenes/corner/scene_full.glb`, `scene3d.json` |
+
+Vòng chơi: chợ mua nguyên liệu → quán **Phở Gánh** (quán của người chơi, dãy phố trái) nhận order → bếp nấu →
+bưng ra → khách ăn, trả tiền (+bo, +uy tín). Phụ: nói chuyện / việc vặt với người đi đường có dấu **!**, ăn uống
+và dịch vụ ở 17 quán khác, đồng hồ ngày–đêm, thể lực.
+
+Quyết định đã chốt với chủ dự án: giữ ngã tư hiện tại nhưng nới chỗ chật; đủ 4 tương tác (quán phở, chợ, nói chuyện,
+ăn ở quán khác); phím E tương tác, Space nhảy, phím 1–9 chọn trong bảng; phím đọc theo vị trí vật lý để không bị
+bộ gõ tiếng Việt chặn.
+
+Kiểm thử (đều qua):
+
+```bash
+godot --headless --path godot -s res://tests/unit/game_state_economy_test.gd      # 15 phép
+godot --headless --path godot -s res://tests/integration/pho_shop_loop_test.gd    # 12 bước vòng quán phở + va chạm
+godot --headless --path godot -s res://tests/integration/input_controls_test.gd   # 15 bước giả lập phím/chuột
+```
+
+Chưa cài gdUnit4: test là script `SceneTree` tự chạy, chưa đúng chuẩn đặt tên `test_*` của `.claude/rules/test-standards.md`.
+Sau khi đổi `scene_full.glb` phải chạy `godot --headless --path godot --import`, nếu không game dùng bản cũ trong cache.
+
+Chủ dự án báo "không bấm được gì" ở bản trước; giả lập không tái hiện được, đã làm vòng tương tác rộng hơn,
+click ô nhắc thay E, phím số trong bảng, dòng "Việc cần làm". **Chưa được chủ dự án xác nhận trên máy thật.**
 
 ## Tài liệu
 
@@ -54,6 +95,9 @@ Phần lớn GDD được **viết ngược từ code** (`/reverse-document`): c
 | Xe buýt | **Chưa làm** (cờ gợi ý `farFromMarket` / `farFromShop` trong `World.ts` đang tắt) |
 | Đưa lời thoại hàng xóm + thư bà nội vào game | Chưa làm (game vẫn dùng 8 câu mẹo cũ) |
 | GDD `interiors.md`, `bus.md`; cập nhật `furniture.md` | Chưa viết |
+| Bản Godot góc nhìn thứ ba: phố, 18 nội thất, vòng quán phở, chợ, việc vặt, HUD, ăn, nhảy | Đã làm, có test và ảnh `production/qa/evidence/godot-3p-*` |
+| Godot: mini-game nấu như bản web, âm thanh, lưu tiến trình, khách né nhau | Chưa làm |
+| `project.yaml` chưa ghi engine (web hay Godot) | Chưa quyết |
 
 ## Việc tiếp theo (theo thứ tự)
 

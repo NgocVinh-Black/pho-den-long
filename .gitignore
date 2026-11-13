@@ -14,3 +14,7 @@ production/session-state/
 .scratch/
 .claude/agent-memory/
 .claude/worktrees/
+
+# Godot
+godot/.godot/
+godot/screenshots/
