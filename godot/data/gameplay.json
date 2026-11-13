@@ -1,0 +1,100 @@
+{
+  "_note": "Số liệu chơi của chế độ góc nhìn thứ ba. Tiền tính bằng nghìn đồng. Giá nguyên liệu và công thức phở lấy từ packages/shared/src/data (ingredients.ts, shops.ts); giá bán = giá vốn × 2 (RULES.priceMargin.food), làm tròn lên 5.",
+  "start": {
+    "money": 300,
+    "hp": 100,
+    "energy": 80,
+    "minute": 420,
+    "inventory": { "banh_pho": 3, "thit_bo": 2, "xuong_ong": 2, "hanh_la": 3, "rau_thom": 3 }
+  },
+  "clock": { "sec_per_game_minute": 0.5, "night_from": 1080, "night_to": 330 },
+  "energy": { "drain_per_game_minute": 0.05, "run_multiplier": 2.5, "tired_below": 15 },
+  "ingredients": {
+    "banh_pho": { "name": "Bánh phở", "price": 4, "color": "#f3ead2" },
+    "thit_bo": { "name": "Thịt bò", "price": 12, "color": "#c0392b" },
+    "thit_ga": { "name": "Thịt gà", "price": 9, "color": "#e9b872" },
+    "xuong_ong": { "name": "Xương ống", "price": 5, "color": "#e8dcc0" },
+    "hanh_la": { "name": "Hành lá", "price": 1, "color": "#5aa83f" },
+    "rau_thom": { "name": "Rau thơm", "price": 1, "color": "#3f8f4f" },
+    "la_chanh": { "name": "Lá chanh", "price": 1, "color": "#7fb842" },
+    "rau_song": { "name": "Rau sống", "price": 2, "color": "#8fcf5a" },
+    "nuoc_mam": { "name": "Nước mắm", "price": 2, "color": "#b5762a" }
+  },
+  "recipes": [
+    { "id": "pho_bo_tai", "name": "Phở bò tái", "price": 50, "cook_sec": 2.5,
+      "ingredients": ["banh_pho", "thit_bo", "xuong_ong", "hanh_la", "rau_thom"] },
+    { "id": "pho_ga", "name": "Phở gà", "price": 40, "cook_sec": 2.5,
+      "ingredients": ["banh_pho", "thit_ga", "xuong_ong", "hanh_la", "la_chanh"] },
+    { "id": "pho_cuon", "name": "Phở cuốn Ngũ Xã", "price": 40, "cook_sec": 2.0,
+      "ingredients": ["banh_pho", "thit_bo", "rau_song", "nuoc_mam"] }
+  ],
+  "market": {
+    "sections": [
+      { "name": "Sạp bánh phở, bún", "call": "Bánh phở mới tráng đây!", "items": ["banh_pho"] },
+      { "name": "Sạp thịt", "call": "Thịt tươi mới mổ sáng nay!", "items": ["thit_bo", "thit_ga", "xuong_ong"] },
+      { "name": "Sạp rau", "call": "Rau mới hái, xanh mướt!", "items": ["hanh_la", "rau_thom", "la_chanh", "rau_song"] },
+      { "name": "Sạp đồ khô", "call": "Mắm muối gia vị đủ cả!", "items": ["nuoc_mam"] }
+    ]
+  },
+  "customers": {
+    "first_after_sec": 3.0,
+    "every_sec": [9.0, 15.0],
+    "max_seated": 4,
+    "patience_sec": 75.0,
+    "eat_sec": 6.0,
+    "tip_if_fast": 10,
+    "fast_below_sec": 30.0,
+    "rep_per_serve": 1,
+    "rep_per_walkout": -2
+  },
+  "menus": {
+    "food": [
+      { "name": "Bún đậu mắm tôm", "price": 45, "energy": 30, "hp": 5 },
+      { "name": "Bánh cuốn nóng", "price": 30, "energy": 22, "hp": 3 },
+      { "name": "Trà đá", "price": 5, "energy": 6, "hp": 0 }
+    ],
+    "bia": [
+      { "name": "Cốc bia hơi", "price": 15, "energy": 8, "hp": -2 },
+      { "name": "Lạc rang + nem chua", "price": 25, "energy": 18, "hp": 0 }
+    ],
+    "cafe": [
+      { "name": "Cà phê trứng", "price": 35, "energy": 28, "hp": 0 },
+      { "name": "Cà phê nâu đá", "price": 25, "energy": 22, "hp": 0 },
+      { "name": "Kem Tràng Tiền", "price": 15, "energy": 10, "hp": 2 }
+    ],
+    "che": [
+      { "name": "Chè ba miền", "price": 25, "energy": 18, "hp": 3 },
+      { "name": "Sinh tố bơ", "price": 30, "energy": 20, "hp": 4 }
+    ],
+    "hair": [ { "name": "Cắt tóc gội đầu", "price": 60, "energy": 10, "hp": 0, "rep": 2 } ],
+    "pharma": [
+      { "name": "Thuốc bổ Nam dược", "price": 40, "energy": 0, "hp": 35 },
+      { "name": "Cao xoa bóp", "price": 20, "energy": 5, "hp": 15 }
+    ],
+    "inn": [ { "name": "Ngủ một giấc (tới 6 giờ sáng)", "price": 80, "energy": 100, "hp": 30, "sleep": true } ],
+    "grocery": [
+      { "name": "Nước ngọt", "price": 10, "energy": 10, "hp": 0 },
+      { "name": "Nước mắm (1 phần)", "price": 3, "item": "nuoc_mam" }
+    ],
+    "phone": [ { "name": "Dán cường lực", "price": 30, "energy": 0, "hp": 0, "rep": 1 } ],
+    "bike": [ { "name": "Bơm xe, tra dầu", "price": 10, "energy": 0, "hp": 0 } ],
+    "flower": [ { "name": "Bó hoa bày quán (+uy tín)", "price": 50, "energy": 0, "hp": 0, "rep": 3 } ]
+  },
+  "talk": [
+    "Sáng nay phố đông quá cháu nhỉ!",
+    "Quán phở đầu ngõ nước dùng ngon lắm, mai bác ghé.",
+    "Chợ bên kia có thịt bò tươi, đi sớm kẻo hết.",
+    "Trời này mà làm bát phở thì tuyệt.",
+    "Tối nay có đèn lồng, phố đẹp lắm đấy.",
+    "Cháu nhớ mua hành lá, phở thiếu hành là mất ngon.",
+    "Xe máy đông, đi đường cẩn thận nhé!",
+    "Nghe bảo quán cà phê trứng đầu phố mới có kem."
+  ],
+  "errands": [
+    { "ask": "Cháu ơi, mang hộ cô túi rau này sang Tiệm ăn đêm với!", "target": "TIỆM ĂN ĐÊM", "item": "túi rau", "reward": 30 },
+    { "ask": "Bác gửi cái điện thoại này ra tiệm sửa điện thoại giúp nhé.", "target": "ĐIỆN THOẠI", "item": "điện thoại hỏng", "reward": 25 },
+    { "ask": "Cháu mang giúp bà gói thuốc này về Hiệu thuốc Đông y được không?", "target": "THUỐC", "item": "gói thuốc", "reward": 35 },
+    { "ask": "Em ơi, đưa bó hoa này sang quán Chè ba miền hộ chị!", "target": "CHÈ", "item": "bó hoa", "reward": 30 },
+    { "ask": "Mang giúp chú thùng bia này vào Quán bia hơi nhé.", "target": "BIA", "item": "thùng bia", "reward": 40 }
+  ]
+}
